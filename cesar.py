@@ -50,3 +50,37 @@ def cesar_chiffrer_rapide(texte, cle):
     for caractere in texte:
         resultat.append(decaler_caractere(caractere, cle))
     return ''.join(resultat)
+    
+def cesar_chiffrer(texte, cle):
+    """
+    Alias lisible pour chiffrer un texte.
+    Délègue à chiffrer_rapide.
+
+    Paramètres :
+        texte (str) : le texte à chiffrer
+        cle   (int) : la clé de chiffrement
+
+    Retourne :
+        str : le texte chiffré
+    """
+    return cesar_chiffrer_rapide(texte, cle)
+
+def cesar_dechiffrer(texte, cle):
+    """
+    Déchiffre un texte chiffré par César en inversant la clé.
+
+    Le déchiffrement est un chiffrement avec la clé opposée (-cle).
+    On utilise le modulo pour s'assurer que la clé normalisée est dans [0, 25].
+
+    Paramètres :
+        texte (str) : le texte chiffré
+        cle   (int) : la clé utilisée lors du chiffrement
+
+    Retourne :
+        str : le texte déchiffré
+    """
+    # Inverser la clé : déchiffrer avec -cle revient à chiffrer avec (26 - cle)
+    cle_normalisee = -cle % ALPHABET_LEN
+    return cesar_chiffrer_rapide(texte, cle_normalisee)
+
+print(cesar_dechiffrer("Mzyuzfc ezfe wp xzyop",89))
