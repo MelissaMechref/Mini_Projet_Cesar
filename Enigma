@@ -43,3 +43,21 @@ def enigma_chiffrer(message: str, cles) -> str:
             message_chiffre.append(caractere)
 
     return "".join(message_chiffre)
+def enigma_dechiffrer(message: str, cles) -> str:
+    """
+    Déchiffre un message Enigma César en inversant les clés.
+
+    Paramètres :
+        message (str) : le texte chiffré
+        cles (tuple/list) : la clé de chiffrement initiale (3 entiers)
+
+    Retourne :
+        str : le texte déchiffré
+    """
+    if len(cles) != 3:
+        raise ValueError("La clé Enigma doit contenir exactement 3 nombres.")
+
+    # Déchiffrer revient à chiffrer en inversant chaque décalage (-cle)
+    cles_inversees = [-cle % ALPHABET_LEN for cle in cles]
+
+    return enigma_chiffrer(message, cles_inversees)
