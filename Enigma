@@ -1,0 +1,45 @@
+import utile
+from utile import ALPHABET_LEN
+
+
+def enigma_chiffrer(message: str, cles) -> str:
+    """
+    Chiffre un message selon le mode Enigma César.
+    Chaque nombre de la clé est utilisé tour à tour pour appliquer un décalage
+    de César à une lettre du message.
+
+    Paramètres :
+        message (str) : le texte en clair à chiffrer
+        cles (tuple/list) : un triplet de exactement 3 entiers (ex: (7, 16, 9))
+
+    Retourne :
+        str : le texte chiffré
+    """
+    # Validation stricte demandée par l'énoncé (noté dans les tests)
+    if len(cles) != 3:
+        raise ValueError("La clé Enigma doit contenir exactement 3 nombres.")
+
+    message_chiffre = []
+    index_cle = 0  # Permet de savoir quel décalage utiliser (0, 1 ou 2)
+
+    for caractere in message:
+        if utile.est_lettre(caractere):
+            # 1. Récupérer le décalage actuel (tour à tour : cles[0], puis cles[1], puis cles[2], puis cles[0]...)
+            decalage_actuel = cles[index_cle]
+
+            # 2. Appliquer le décalage de César standard
+            index_origine = utile.index_lettre(caractere)
+            nouvel_index = (index_origine + decalage_actuel) % ALPHABET_LEN
+            caractere_chiffre = utile.lettre_depuis_index(
+                nouvel_index, caractere
+            )
+
+            message_chiffre.append(caractere_chiffre)
+
+            # 3. Passer au nombre suivant de la clé (en boucle sur les 3 éléments)
+            index_cle = (index_cle + 1) % 3
+        else:
+            # Si ce n'est pas une lettre, on l'ajoute tel quel sans faire avancer la clé
+            message_chiffre.append(caractere)
+
+    return "".join(message_chiffre)
