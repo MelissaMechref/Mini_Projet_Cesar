@@ -1,0 +1,86 @@
+import string
+import unicodedata
+
+# =============================================================================
+# CONSTANTES
+# =============================================================================
+
+# Alphabets complets minuscules et majuscules (utilisés pour les décalages César)
+ALPHABET_MIN = string.ascii_lowercase
+ALPHABET_MAJ = string.ascii_uppercase
+ALPHABET_LEN = len(ALPHABET_MIN)  # Longueur de l'alphabet
+
+
+
+# =============================================================================
+# FONCTIONS UTILITAIRES
+# =============================================================================
+
+def supprimer_accents(texte):
+    """
+    Supprime les accents, cédilles et autres signes diacritiques.
+
+    Exemple :
+    "Éléphant ça va ?" -> "Elephant ca va ?"
+    """
+
+    # Décomposition Unicode des caractères accentués
+    texte_normalise = unicodedata.normalize("NFD", texte)
+
+    # Suppression des caractères diacritiques
+    texte_sans_accents = "".join(
+        caractere
+        for caractere in texte_normalise
+        if unicodedata.category(caractere) != "Mn"
+    )
+
+    return texte_sans_accents
+
+
+def est_lettre(caractere):
+    """
+    Vérifie si le caractère donné est une lettre de l'alphabet
+    (majuscule ou minuscule).
+    """
+    return (caractere in ALPHABET_MAJ) or (caractere in ALPHABET_MIN)
+
+
+def index_lettre(caractere):
+    """
+    Renvoie la position (de 0 à 25) de la lettre dans l'alphabet.
+    """
+
+    if est_lettre(caractere):
+
+        # Recherche dans les minuscules en priorité
+        if caractere in ALPHABET_MIN:
+            return ALPHABET_MIN.find(caractere)
+
+        # Sinon dans les majuscules
+        else:
+            return ALPHABET_MAJ.find(caractere)
+
+    return None
+
+def lettre_depuis_index(index, caractere_original):
+    """
+    Récupère la lettre correspondant à un index donné (0 à 25),
+    en respectant la casse du caractère original.
+    """
+
+    if caractere_original in ALPHABET_MAJ:
+        return ALPHABET_MAJ[index]
+    else:
+        return ALPHABET_MIN[index]
+
+
+def nettoyer_texte(texte):
+    """
+    Supprime les espaces inutiles au début et à la fin d'une chaîne
+    puis enlève les accents.
+    """
+
+    texte = texte.strip()
+    texte = supprimer_accents(texte)
+
+    return texte
