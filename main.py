@@ -1,12 +1,17 @@
 """
-MGA802 — Mini-Projet A : Chiffrement de César
-Squelette de départ pour votre équipe.
+MGA802 — Mini-Projet A : Chiffrement de César et Enigma César
 """
 import argparse
+from html import parser
+import sys
 
+
+import cesar
+import Enigma  
+import casser_enigma 
+import casser_brute  
 
 def chiffrer(message: str, cle: int):
-	# TODO: retourner la chaîne chiffrée (type str).
 	# Exigences visibles dans tests/test_caesar.py :
 	# - test_cesar_officiel_cle_42
 	# - test_cesar_officiel_cle_neg_42
@@ -15,15 +20,14 @@ def chiffrer(message: str, cle: int):
 	# - chiffrer("Veni, vidi, vici!", 42) -> "Ludy, lyty, lysy!"
 	# - chiffrer("Veni, vidi, vici!", -42) -> "Foxs, fsns, fsms!"
 	# - chiffrer("Tout pareil.", 0) -> "Tout pareil."
-	pass
+	return cesar.cesar_chiffrer(message, cle)
 
 
 def dechiffrer(message: str, cle: int):
-	# TODO: retourner la chaîne déchiffrée (type str).
 	# Exigence visible dans tests/test_caesar.py :
 	# - test_cesar_round_trip
 	# Le test vérifie que dechiffrer(chiffrer(msg, 7), 7) == msg.
-	pass
+	return cesar.cesar_dechiffrer(message, cle)
 
 
 def enigma_chiffrer(message: str, cles):
@@ -32,7 +36,7 @@ def enigma_chiffrer(message: str, cles):
 	# - test_enigma_officiel_maison
 	# Exemple attendu par le test :
 	# - enigma_chiffrer("MAISON", (7, 16, 9)) -> "TQRZEW"
-	pass
+	return Enigma.enigma_chiffrer(message, cles)
 
 
 def _parse_cle(texte: str):
@@ -65,101 +69,75 @@ def _parse_cle(texte: str):
 	return int(texte)
 
 def main(argv=None):
-	"""Point d'entrée principal du programme en ligne de commande.
+    
+ # 1. Configuration du parseur d'arguments
+    parser = argparse.ArgumentParser(
+        description="Mini-Projet A : chiffrement de César / Enigma César.")
 
-	Cette fonction :
-	1. Parse les arguments saisis par l'utilisateur (action, message, clé)
-	2. Convertit la clé en type approprié (int ou tuple)
-	3. Appelle la fonction correspondante (chiffrer, dechiffrer ou enigma_chiffrer)
-	4. Affiche le résultat
+    # Ajout de l'action bruteforce aux choix possibles
+    parser.add_argument(
+        "action",
+        choices=["chiffrer", "dechiffrer", "enigma", "bruteforce"],
+        help="Opération à effectuer (chiffrer, dechiffrer, enigma ou bruteforce).")
 
-	Paramètre :
-		argv (list ou None) : si None, utilise sys.argv (arguments de la console).
-		                      si list, utilise les arguments fournis (utile pour les tests).
+    parser.add_argument(
+        "message",
+        help="Texte à traiter.")
 
-	Exemples d'utilisation en terminal :
-		python main.py chiffrer "Veni, vidi, vici!" --cle 42
-		python main.py dechiffrer "Ludy, lyty, lysy!" --cle 42
-		python main.py enigma "MAISON" --cle 7-16-9
-	"""
-	# === ÉTAPE 1 : Créer et configurer le parseur d'arguments ===
-	# argparse est un module qui aide à gérer les arguments en ligne de commande.
-	# ArgumentParser crée un analyseur personnalisé pour notre programme.
-	parser = argparse.ArgumentParser(
-		description="Mini-Projet A : chiffrement de César / Enigma César.")
+    # La clé n'est pas requise si l'action est bruteforce
+    parser.add_argument(
+        "-c", "--cle", required=False,
+        help="Clé : un entier (ex. '42') ou 'a-b-c' (ex. '7-16-9') pour Enigma.")
+        
+    parser.add_argument(
+        "-f", "--fichier", action="store_true",
+        help="Indique que l'argument 'message' est un chemin de fichier texte à lire.")
 
-	# === ÉTAPE 2 : Définir les arguments attendus ===
+    # Ajout d'une option pour préciser la méthode de bruteforce (César ou Enigma)
+    parser.add_argument(
+        "--mode", choices=["cesar", "enigma"], default="cesar",
+        help="Mode de chiffrement utilisé.")
+    
+ # 2. Analyse des arguments
+    args = parser.parse_args(argv)
 
-	# Argument positionnel "action" : l'opération à effectuer.
-	# - Obligatoire (pas de -- devant)
-	# - Doit être l'une des valeurs listées dans "choices"
-	parser.add_argument(
-		"action",
-		choices=["chiffrer", "dechiffrer", "enigma"],
-		help="Opération à effectuer (chiffrer, dechiffrer ou enigma).")
+    # 3. Gestion de l'option fichier : lire le contenu si le fichier est activé
+    if args.fichier:
+        contenu = cesar.lire_fichier(args.message) 
+        if contenu is None:
+            sys.exit(1) # Quitter si le fichier n'est pas lu
+        texte_a_traiter = contenu
+    else:
+        texte_a_traiter = args.message
 
-	# Argument positionnel "message" : le texte à traiter.
-	# - Obligatoire
-	# - C'est la chaîne que nous allons chiffrer ou déchiffrer
-	parser.add_argument(
-		"message",
-		help="Texte à traiter (mettez-le entre guillemets).")
+    # 4. Vérification et conversion de la clé
+    if args.action != "bruteforce":
+        if args.cle is None:
+            parser.error("L'argument cle est requis pour chiffrer, dechiffrer ou enigma.")
+        cle = _parse_cle(args.cle)
 
-	# Argument optionnel "--cle" (abréviation "-c") : la clé de chiffrement.
-	# - Obligatoire via required=True
-	# - Peut être un entier (César) ou trois entiers séparés par des tirets (Enigma César)
-	parser.add_argument(
-		"-c", "--cle", required=True,
-		help="Clé : un entier (ex. '42') ou 'a-b-c' (ex. '7-16-9') pour Enigma.")
+    # 5. Exécution de l'action choisie
+    resultat = ""
+    if args.action == "chiffrer":
+        resultat = chiffrer(texte_a_traiter, cle)
+    elif args.action == "dechiffrer":
+        resultat = dechiffrer(texte_a_traiter, cle)
+    elif args.action == "enigma":
+        resultat = enigma_chiffrer(texte_a_traiter, cle)
+    elif args.action == "bruteforce":
+        if args.mode == "cesar":
+            cle_trouvee, resultat = casser_brute.trouver_cle(texte_a_traiter)
+        elif args.mode == "enigma":
+            cle_trouvee, resultat = casser_enigma.brute_force_enigma(texte_a_traiter, mode_optimise=True)
 
-	# === ÉTAPE 3 : Analyser les arguments ===
-	# parse_args() transforme les arguments en un objet "Namespace" avec des attributs.
-	# Si argv=None, il lit automatiquement depuis la ligne de commande.
-	# Sinon, il utilise la liste fournie.
-	args = parser.parse_args(argv)
-
-	# Maintenant, on peut accéder aux arguments via :
-	# - args.action (ex. "chiffrer")
-	# - args.message (ex. "Veni, vidi, vici!")
-	# - args.cle (ex. "42" ou "7-16-9", toujours en chaîne de caractères)
-
-	# === ÉTAPE 4 : Convertir la clé (texte) en type approprié ===
-	# _parse_cle() transforme la clé en int (César) ou tuple (Enigma).
-	cle = _parse_cle(args.cle)
-
-	# === ÉTAPE 5 : Choisir et exécuter l'opération ===
-	# Selon l'action, on appelle la fonction appropriée.
-	# (Une fois que chiffrer / dechiffrer / enigma_chiffrer seront implémentées,
-	#  ces appels retourneront le résultat du chiffrement/déchiffrement.)
-
-	if args.action == "chiffrer":
-		# L'utilisateur veut chiffrer : on appelle chiffrer()
-		resultat = chiffrer(args.message, cle)
-	elif args.action == "dechiffrer":
-		# L'utilisateur veut déchiffrer : on appelle dechiffrer()
-		resultat = dechiffrer(args.message, cle)
-	else:  # args.action == "enigma"
-		# L'utilisateur veut utiliser Enigma César : on appelle enigma_chiffrer()
-		resultat = enigma_chiffrer(args.message, cle)
-
-	# === ÉTAPE 6 : Afficher le résultat ===
-	# print() affiche le résultat à l'écran pour que l'utilisateur le voie.
-	print(resultat)
-	
-	# TODO : Une fois les fonctions de base implémentées, vous pourrez :
-	# - Ajouter des options pour lire/écrire depuis des fichiers
-	# - Implémenter le mode brute-force
-	# - Ajouter d'autres fonctionnalités
+    # 6. Affichage ou sauvegarde du résultat
+    if args.fichier:
+        chemin_sortie = cesar.generer_nom_sortie(args.message, f"_{args.action}")
+        cesar.ecrire_fichier(chemin_sortie, resultat)
+    else:
+        print(resultat)
 
 
 if __name__ == "__main__":
-	# Ce bloc s'exécute SEULEMENT si ce fichier est lancé directement depuis le terminal.
-	# Exemple : python main.py chiffrer "Veni" --cle 42
-	#
-	# Il ne s'exécute PAS si on fait "import main" depuis un autre fichier Python.
-	# Cela permet d'utiliser le code de main.py dans d'autres projets sans lancer main().
-	# 
-	# Pour les tests : pytest importe ce fichier mais ne lance pas main()
-	# (car __name__ ne vaut pas "__main__" lors d'un import).
-	main()
+    main()
 
