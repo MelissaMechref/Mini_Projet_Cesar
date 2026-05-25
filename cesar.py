@@ -83,4 +83,4 @@ def cesar_dechiffrer(texte, cle):
     cle_normalisee = -cle % ALPHABET_LEN
     return cesar_chiffrer_rapide(texte, cle_normalisee)
 
-print(cesar_dechiffrer("Mzyuzfc ezfe wp xzyop",89))
+#print(cesar_dechiffrer("Mzyuzfc ezfe wp xzyop",89))
