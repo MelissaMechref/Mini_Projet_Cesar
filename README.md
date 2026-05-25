@@ -209,16 +209,7 @@ pytest -v tests/test_caesar.py::test_cesar_officiel_cle_42
 
 
 
----
-##  Bugs corrigés dans ce projet
 
-| Fichier | Bug | Correction |
-|---|---|---|
-| `cesar.py` | `print(cesar_dechiffrer(...))` s'exécutait à chaque import | Ligne supprimée |
-| `gestion_fichier.py` | `return conten` (variable inexistante) | Corrigé en `return contenu` |
-| `main.py` | Fonctions `chiffrer`, `dechiffrer`, `enigma_chiffrer` retournaient `None` | Implémentées via `cesar.py` et `enigma.py` |
-
----
 
 *Projet académique — École de Technologie Supérieure, MGA802, Été 2026.*
 
