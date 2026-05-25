@@ -14,8 +14,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-import Enigma
-import casser_brute
+import enigma
+import casser_cesar
 import casser_enigma
 
 # Permet d'importer main.py depuis le dossier parent
@@ -47,7 +47,7 @@ def test_enigma_round_trip():
     """Chiffrer puis déchiffrer avec Enigma doit redonner le message original."""
     msg = "Message de test enigma!"
     cle = (4, 12, 19)
-    assert Enigma.enigma_dechiffrer(enigma_chiffrer(msg, cle), cle) == msg
+    assert enigma.enigma_dechiffrer(enigma_chiffrer(msg, cle), cle) == msg
     
 def test_cesar_cle_zero_identite():
     """Une clé de 0 ne doit rien changer."""
@@ -92,7 +92,7 @@ def test_bruteforce_cesar():
     # Il faut que le texte soit assez long pour que l'analyse statistique fonctionne
     texte_clair = "Ceci est un message secret assez long pour lanalyse de frequence"
     texte_chiffre = chiffrer(texte_clair, 14)
-    cle_trouvee, texte_trouve = casser_brute.trouver_cle(texte_chiffre)
+    cle_trouvee, texte_trouve = casser_cesar.trouver_cle(texte_chiffre)
     assert cle_trouvee == 14
 
 def test_bruteforce_enigma():
