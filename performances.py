@@ -4,7 +4,7 @@
 
 import timeit
 import cesar
-import Enigma
+import enigma
 import casser_brute
 import casser_cesar_naive
 import casser_enigma
