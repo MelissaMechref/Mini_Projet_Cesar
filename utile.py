@@ -73,7 +73,6 @@ def lettre_depuis_index(index, caractere_original):
     else:
         return ALPHABET_MIN[index]
 
-
 def nettoyer_texte(texte):
     """
     Supprime les espaces inutiles au début et à la fin d'une chaîne
