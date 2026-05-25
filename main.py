@@ -10,6 +10,7 @@ import cesar
 import enigma  
 import casser_enigma 
 import casser_cesar  
+import gestion_fichier as gf
 
 def chiffrer(message: str, cle: int):
 	# Exigences visibles dans tests/test_caesar.py :
@@ -36,7 +37,7 @@ def enigma_chiffrer(message: str, cles):
 	# - test_enigma_officiel_maison
 	# Exemple attendu par le test :
 	# - enigma_chiffrer("MAISON", (7, 16, 9)) -> "TQRZEW"
-	return Enigma.enigma_chiffrer(message, cles)
+	return enigma.enigma_chiffrer(message, cles)
 
 
 def _parse_cle(texte: str):
@@ -103,7 +104,7 @@ def main(argv=None):
 
     # 3. Gestion de l'option fichier : lire le contenu si le fichier est activé
     if args.fichier:
-        contenu = cesar.lire_fichier(args.message) 
+        contenu = gf.lire_fichier(args.message) 
         if contenu is None:
             sys.exit(1) # Quitter si le fichier n'est pas lu
         texte_a_traiter = contenu
@@ -126,14 +127,14 @@ def main(argv=None):
         resultat = enigma_chiffrer(texte_a_traiter, cle)
     elif args.action == "bruteforce":
         if args.mode == "cesar":
-            cle_trouvee, resultat = casser_brute.trouver_cle(texte_a_traiter)
+            cle_trouvee, resultat = casser_cesar.trouver_cle(texte_a_traiter)
         elif args.mode == "enigma":
             cle_trouvee, resultat = casser_enigma.brute_force_enigma(texte_a_traiter, mode_optimise=True)
 
     # 6. Affichage ou sauvegarde du résultat
     if args.fichier:
-        chemin_sortie = cesar.generer_nom_sortie(args.message, f"_{args.action}")
-        cesar.ecrire_fichier(chemin_sortie, resultat)
+        chemin_sortie = gf.generer_nom_sortie(args.message, f"_{args.action}")
+        gf.ecrire_fichier(chemin_sortie, resultat)
     else:
         print(resultat)
 
