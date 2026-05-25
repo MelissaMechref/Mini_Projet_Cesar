@@ -7,9 +7,9 @@ import sys
 
 
 import cesar
-import Enigma  
+import enigma  
 import casser_enigma 
-import casser_brute  
+import casser_cesar  
 
 def chiffrer(message: str, cle: int):
 	# Exigences visibles dans tests/test_caesar.py :
