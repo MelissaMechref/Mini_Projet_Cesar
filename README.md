@@ -210,7 +210,7 @@ pytest -v tests/test_caesar.py::test_cesar_officiel_cle_42
 
 
 ---
-## 🐛 Bugs corrigés dans ce projet
+##  Bugs corrigés dans ce projet
 
 | Fichier | Bug | Correction |
 |---|---|---|
