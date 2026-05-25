@@ -4,8 +4,8 @@
 
 import timeit
 import cesar
-import Enigma
-import casser_brute
+import enigma
+import casser_cesar
 import casser_cesar_naive
 import casser_enigma
 import casser_enigma_naive
@@ -28,7 +28,7 @@ def lancer_comparatif():
 
     # Chiffrement initial des données de test
     texte_cesar = cesar.cesar_chiffrer(texte_clair, cle_cesar)
-    texte_enigma = Enigma.enigma_chiffrer(texte_clair, cle_enigma)
+    texte_enigma = enigma.enigma_chiffrer(texte_clair, cle_enigma)
 
     print(f"Longueur du texte à traiter : {len(texte_clair)} caractères\n")
 
@@ -46,7 +46,7 @@ def lancer_comparatif():
 
     # César Optimisé
     temps_cesar_opti = timeit.timeit(
-        lambda: casser_brute.trouver_cle(texte_cesar), 
+        lambda: casser_cesar.trouver_cle(texte_cesar), 
         number=100
     ) / 100
     print(f"[RÉSULTAT] César Optimisé (Chi²)   : {temps_cesar_opti * 1000:.4f} ms / exécution")
