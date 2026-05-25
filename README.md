@@ -21,6 +21,7 @@ Le programme chiffre et déchiffre des messages ou des fichiers `.txt`, et peut 
 ```
 mga802-miniprojeta/
 ⌈ main.py                  # Point d'entrée - fonctions + CLI (argparse)
+⎮ interface.py             # Interface interactive 
 ⎮ cesar.py                 # Cesar_chiffrer(), cesar_dechiffrer()
 ⎮ enigma.py                # enigma_chiffrer(), enigma_dechiffrer()
 ⎮ utile.py                 # Constantes alphabet, fonctions utilitaires
@@ -61,7 +62,7 @@ python main.py chiffrer "Veni, vidi, vici!" --cle -42
 # -> Foxs, fsns, fsms!
 ```
 
-### 3. Chiffrement Enigma César - message direct
+### 2. Chiffrement Enigma César - message direct
 
 La clé est composée de **3 entiers séparés par des tirets** (ex. `7-16-9`) :
 
@@ -70,7 +71,7 @@ python main.py enigma "MAISON" --cle 7-16-9
 # -> TQRZEW
 ```
 
-### 4. Chiffrer / déchiffrer un fichier `.txt`
+### 3. Chiffrer / déchiffrer un fichier `.txt`
 ```bsh
 # Chiffrer message.txt avec la clé 13 -> crée message_chiffre.txt
 python main.py chiffrer --fichier message.txt --cle 13
@@ -84,7 +85,7 @@ python main.py enigma --fichier message.txt --cle 7-16-9
 > Les fichiers de sorties sont générés automatiquement dans le même dossier,
 >  avec un suffixe ajouté au nom : `_chiffre`, `_dechiffre`, `_enigma`, `_casse`.
 
-### 5. Brute-force - retroucer la clé automatiquement
+### 4. Brute-force - retroucer la clé automatiquement
 ```bsh
 #César - méthode d'analyse fréquentielle (rapide)
 python main.py brute --fichier message_chiffre.txt
@@ -100,6 +101,31 @@ python main.py brute --fichier message_chiffre.txt --enigma --naive
 ```
 
 Le résultat déchiffré est enregistré dans `<nom_fichier>_casse.txt`.
+
+### Option interface 
+
+Lance un menu en terminal : 
+```bash
+python interface.py
+```
+ 
+Le menu propose :
+ 
+```
+  [1]  Chiffrer    --  Cesar
+  [2]  Dechiffrer  --  Cesar
+  [3]  Chiffrer    --  Enigma
+  [4]  Dechiffrer  --  Enigma
+  [6]  Casser      --  Cesar  (fréquentielle ou naïve)
+  [7]  Casser      --  Enigma (fréquentielle ou naïve)
+  [5]  Historique des operations
+  [0]  Quitter
+```
+ 
+Pour chaque option, le programme demande le message et la clé, puis affiche le résultat.
+L'option **Casser** tente de retrouver la clé automatiquement sans la connaître.
+ 
+
 
 ---
 
@@ -135,7 +161,7 @@ La clé `(k1, k2, k3)`est appliquée **cycliquement sur les lettres uniquement**
 
 | Méthode | Tests | Principe |
 |---------|-------|----------|
-| **fréquence optimisé** (défaut) | 78 (3 × 26) | Analyse chaque position de clé séparément — ~225× plus rapide |
+| **fréquence optimisée** (défaut) | 78 (3 × 26) | Analyse chaque position de clé séparément — ~225× plus rapide |
 | **Naïve** (`--naive`) | 17 576 (26³) | Teste toutes les combinaisons, compte les mots français |
 
 --- 
@@ -146,14 +172,53 @@ Mesures réalisées avec `timeit`, texte de référence : 50 caractères.
 
 | Méthode | Clés testées | Temps moyen |
 |---|---|---|
-| César — Chi² | 26 | ... ms |
-| César — naïve | 26 | ... ms |
-| Enigma — Chi² optimisé | 78 | ... ms |
-| Enigma — Chi² exhaustif | 17 576 | ... s |
-| Enigma — naïve | 17 576 | ... s |
+| César — frequentielle | 26 | < 1 ms |
+| César — naïve | 26 | < 1 ms |
+| Enigma — frequentielle optimisé | 78 | ~5 ms |
+| Enigma — frequentielle exhaustive | 17 576 | ~1-3 s |
+| Enigma — naïve | 17 576 | ~2-5 s |
 
 > Les temps varient selon la machine.
 
 ---
 
 ## Tests unitaires
+```bash
+# Lancer tous les tests (depuis la racine du projet)
+pytest -v
+
+# Si pytest n'est pas dans le PATH
+python -m pytest -v
+
+# Lancer un seul test
+pytest -v tests/test_caesar.py::test_cesar_officiel_cle_42
+```
+
+**44 tests** au total — tous doivent afficher `PASSED` :
+
+| Catégorie | Nombre | Ce qui est testé |
+|---|---|---|
+| César officiel | 5 | Cas de l'énoncé + round-trip + clé 0 |
+| Chiffrement César | 14 | Majuscules, minuscules, ponctuation, clés limites, chaîne vide, bouclage, accents |
+| Déchiffrement César | 5 | Cas officiel, clé 0, clé négative, chaîne vide, ponctuation |
+| Enigma César | 11 | Cas officiel, round-trip, clé 0, `ValueError`, ponctuation sans avancer la clé, clés négatives/grandes |
+| Brute-force César | 4 | frequentielle et naïve trouvent la bonne clé, texte vide |
+| Brute-force Enigma | 4 | frequentielle optimisée et naïve trouvent la bonne clé, texte vide |
+
+
+
+
+
+---
+## 🐛 Bugs corrigés dans ce projet
+
+| Fichier | Bug | Correction |
+|---|---|---|
+| `cesar.py` | `print(cesar_dechiffrer(...))` s'exécutait à chaque import | Ligne supprimée |
+| `gestion_fichier.py` | `return conten` (variable inexistante) | Corrigé en `return contenu` |
+| `main.py` | Fonctions `chiffrer`, `dechiffrer`, `enigma_chiffrer` retournaient `None` | Implémentées via `cesar.py` et `enigma.py` |
+
+---
+
+*Projet académique — École de Technologie Supérieure, MGA802, Été 2026.*
+
