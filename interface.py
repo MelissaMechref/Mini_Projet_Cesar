@@ -26,7 +26,6 @@ import casser_cesar_naive
 import casser_enigma
 import casser_enigma_naive
 
-
 # =============================================================================
 # CONSTANTES D'AFFICHAGE
 # =============================================================================
