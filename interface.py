@@ -287,7 +287,7 @@ def action_casser_cesar(historique):
 
     if methode == "1":
         # Méthode Chi² — plus fiable sur les textes longs
-        cle, dechiffre = casser_brute.trouver_cle(msg)
+        cle, dechiffre = casser_cesar.trouver_cle(msg)
         nom_methode = "Cassage Cesar (Chi²)"
     else:
         # Méthode naive — basée sur un dictionnaire de mots français courants
