@@ -2,7 +2,7 @@ def lire_fichier(chemin):
     try:
         with open(chemin,"r",encoding="utf-8") as file:
             contenu = file.read()
-            return conten
+            return contenu
     except FileNotFoundError:
         print("ERREUR : Le fichier ", chemin, "n'existe pas")
         return None
